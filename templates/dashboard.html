@@ -1,11 +1,135 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row">
+<div class="row mb-4">
     <div class="col-12">
         <h2><i class="fas fa-chart-bar me-2"></i>Tableau de bord</h2>
+        <p class="text-muted">Bienvenue, <strong>{{ current_user.nom }}</strong> — {{ current_user.role }}</p>
         <hr>
-        <p>Bienvenue, {{ current_user.nom }} !</p>
     </div>
 </div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card text-white bg-primary shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6>Total Étudiants</h6>
+                        <h2>{{ total_etudiants }}</h2>
+                    </div>
+                    <i class="fas fa-users fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-danger shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6>Total Heures d'Absences</h6>
+                        <h2>{{ total_heures }}h</h2>
+                    </div>
+                    <i class="fas fa-clock fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-success shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6>Justifiées</h6>
+                        <h2>{{ absences_justifiees }}</h2>
+                        <small>{{ taux_justifiees }}%</small>
+                    </div>
+                    <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-warning shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6>Non Justifiées</h6>
+                        <h2>{{ absences_non_justifiees }}</h2>
+                        <small>{{ taux_non_justifiees }}%</small>
+                    </div>
+                    <i class="fas fa-times-circle fa-3x opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    {% if etudiant_max %}
+    <div class="col-md-6">
+        <div class="card shadow border-danger">
+            <div class="card-body">
+                <h6 class="text-danger"><i class="fas fa-user-times me-2"></i>Étudiant avec le plus d'heures</h6>
+                <h4>{{ etudiant_max[0].nom }} {{ etudiant_max[0].prenom }}</h4>
+                <p class="mb-0">Classe : <strong>{{ etudiant_max[0].classe }}</strong></p>
+                <p class="mb-0">Total : <strong>{{ etudiant_max[1] }}h</strong></p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if classe_max %}
+    <div class="col-md-6">
+        <div class="card shadow border-warning">
+            <div class="card-body">
+                <h6 class="text-warning"><i class="fas fa-chalkboard me-2"></i>Classe avec le plus d'heures</h6>
+                <h4>{{ classe_max[0] }}</h4>
+                <p class="mb-0">Total : <strong>{{ classe_max[1] }}h</strong></p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-chart-pie me-2"></i>Absences par classe</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartClasse"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('chartClasse').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for classe, nb in absences_par_classe %}'{{ classe }} ({{ nb }})',{% endfor %}],
+            datasets: [{
+                data: [{% for classe, nb in absences_par_classe %}{{ nb }},{% endfor %}],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+</script>
 {% endblock %}
