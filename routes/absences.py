@@ -36,7 +36,7 @@ def ajouter():
         db.session.add(absence)
         db.session.commit()
         flash('Absence ajoutée avec succès !', 'success')
-        return redirect(url_for('absences.ajouter'))
+        return redirect(url_for('etudiants.liste'))
 
     etudiants = Etudiant.query.all() if current_user.role != 'enseignant' else None
     return render_template('absences/ajouter.html', etudiants=etudiants)

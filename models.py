@@ -26,6 +26,7 @@ class Etudiant(db.Model):
         return f'<Etudiant {self.nom} {self.prenom}>'
 
 class Absence(db.Model):
+    etudiant = db.relationship('Etudiant', backref='absences')
     __tablename__ = 'absences'
     id = db.Column(db.Integer, primary_key=True)
     etudiant_id = db.Column(db.Integer, db.ForeignKey('etudiants.id'), nullable=False)
@@ -37,3 +38,4 @@ class Absence(db.Model):
 
     def __repr__(self):
         return f'<Absence {self.etudiant_id} {self.date_absence}>'
+    

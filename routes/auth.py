@@ -21,6 +21,8 @@ def register():
             role = 'admin'
         elif code == CODE_ENSEIGNANT:
             role = 'enseignant'
+        elif code == CODE_ADMINISTRATION:
+            role = 'administration'
         else:
             flash('Code secret incorrect !', 'danger')
             return redirect(url_for('auth.register'))
@@ -42,3 +44,28 @@ def register():
         return redirect(url_for('dashboard.index'))
 
     return render_template('auth/register.html')
+@bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        user = User.query.filter_by(email=email).first()
+
+        if not user or not check_password_hash(user.password_hash, password):
+            flash('Email ou mot de passe incorrect !', 'danger')
+            return redirect(url_for('auth.login'))
+
+        login_user(user)
+        flash('Connexion réussie !', 'success')
+        return redirect(url_for('dashboard.index'))
+
+    return render_template('auth/login.html')
+
+
+@bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Vous êtes déconnecté !', 'info')
+    return redirect(url_for('auth.login'))

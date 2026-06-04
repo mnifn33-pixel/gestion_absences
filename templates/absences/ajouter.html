@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-calendar-times me-2"></i>Ajouter une Absence</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% if current_user.role == 'enseignant' %}
+                    <div class="mb-3">
+                        <label class="form-label">Numéro étudiant</label>
+                        <input type="text" name="num_etudiant" class="form-control" required>
+                    </div>
+                    {% else %}
+                    <div class="mb-3">
+                        <label class="form-label">Étudiant</label>
+                        <select name="etudiant_id" class="form-select" required>
+                            <option value="">Sélectionner un étudiant</option>
+                            {% for etudiant in etudiants %}
+                                <option value="{{ etudiant.id }}">{{ etudiant.nom }} {{ etudiant.prenom }} — {{ etudiant.classe }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Date d'absence</label>
+                        <input type="date" name="date_absence" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Matière</label>
+                        <input type="text" name="matiere" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre d'heures</label>
+                        <input type="number" name="nb_heures" class="form-control" step="0.5" value="1.5" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="justifiee" class="form-check-input" id="justifiee">
+                        <label class="form-check-label" for="justifiee">Absence justifiée</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Motif</label>
+                        <textarea name="motif" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save me-2"></i>Enregistrer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

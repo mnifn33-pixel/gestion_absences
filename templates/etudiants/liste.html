@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <h2><i class="fas fa-users me-2"></i>Liste des Étudiants</h2>
+    </div>
+    {% if current_user.role in ['admin', 'administration'] %}
+    <div class="col-auto">
+        <a href="{{ url_for('etudiants.ajouter') }}" class="btn btn-success me-2">
+            <i class="fas fa-plus me-1"></i>Ajouter
+        </a>
+        <a href="{{ url_for('etudiants.importer') }}" class="btn btn-info">
+            <i class="fas fa-file-excel me-1"></i>Importer Excel
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="GET">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <select name="classe" class="form-select">
+                        <option value="">Toutes les classes</option>
+                        {% for c in classes %}
+                            <option value="{{ c }}" {% if c == classe %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="num_etudiant" class="form-control" placeholder="Numéro étudiant" value="{{ num_etudiant or '' }}">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="recherche" class="form-control" placeholder="Nom ou prénom" value="{{ recherche or '' }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i>Filtrer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>Étudiant</th>
+                    <th>Classe</th>
+                    <th>Numéro</th>
+                    <th>Date absence</th>
+                    <th>Matière</th>
+                    <th>Heures</th>
+                    <th>Justifiée</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for absence in absences %}
+                <tr>
+                    <td>{{ absence.etudiant.nom }} {{ absence.etudiant.prenom }}</td>
+                    <td>{{ absence.etudiant.classe }}</td>
+                    <td>{{ absence.etudiant.num_etudiant }}</td>
+                    <td>{{ absence.date_absence.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ absence.matiere }}</td>
+                    <td>{{ absence.nb_heures }}h</td>
+                    <td>
+                        {% if absence.justifiee %}
+                            <span class="badge bg-success">Oui</span>
+                        {% else %}
+                            <span class="badge bg-danger">Non</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('absences.modifier', id=absence.id) }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{{ url_for('absences.supprimer', id=absence.id) }}" class="btn btn-danger btn-sm"
+                           onclick="return confirm('Supprimer cette absence ?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">Aucune absence trouvée</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

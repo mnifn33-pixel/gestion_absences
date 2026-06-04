@@ -63,5 +63,49 @@ def ajouter():
         db.session.add(etudiant)
         db.session.commit()
         flash('Étudiant ajouté avec succès !', 'success')
-        return redirect(url_for('etudiants.liste'))
+        return redirect(url_for('dashboard.index'))
     return render_template('etudiants/ajouter.html')
+@bp.route('/etudiants/modifier/<int:id>', methods=['GET', 'POST'])
+@login_required
+def modifier(id):
+    if current_user.role not in ['admin', 'administration']:
+        flash('Accès refusé !', 'danger')
+        return redirect(url_for('dashboard.index'))
+    etudiant = Etudiant.query.get_or_404(id)
+    if request.method == 'POST':
+        etudiant.nom = request.form['nom']
+        etudiant.prenom = request.form['prenom']
+        etudiant.classe = request.form['classe']
+        etudiant.num_etudiant = request.form['num_etudiant']
+        db.session.commit()
+        flash('Étudiant modifié avec succès !', 'success')
+        return redirect(url_for('dashboard.index'))
+    return render_template('etudiants/modifier.html', etudiant=etudiant)
+
+@bp.route('/etudiants/supprimer/<int:id>')
+@login_required
+def supprimer(id):
+    if current_user.role not in ['admin', 'administration']:
+        flash('Accès refusé !', 'danger')
+        return redirect(url_for('dashboard.index'))
+    etudiant = Etudiant.query.get_or_404(id)
+    db.session.delete(etudiant)
+    db.session.commit()
+    flash('Étudiant supprimé avec succès !', 'success')
+    return redirect(url_for('dashboard.index'))
+
+@bp.route('/etudiants/importer', methods=['GET', 'POST'])
+@login_required
+def importer():
+    if current_user.role not in ['admin', 'administration']:
+        flash('Accès refusé !', 'danger')
+        return redirect(url_for('dashboard.index'))
+    if request.method == 'POST':
+        fichier = request.files['fichier']
+        if not fichier:
+            flash('Aucun fichier sélectionné !', 'danger')
+            return redirect(url_for('etudiants.importer'))
+
+        wb = openpyxl.load_workbook(fichier)
+        ws = wb.active
+        count = 0
